@@ -6,7 +6,16 @@ class Dashboard extends Component {
     this.state = {};
   }
   render() {
-    return <div>hello mehdi amiri</div>;
+    return (
+      <div style={{ width: "100%", height: "100vh" }} className="">
+        <div className="position-absolute text-white display-4 p-3 ">ثریا</div>
+        <img
+          style={{ width: "100%", height: "100%" }}
+          src={require("../../content/images/mainWallpaper.jpg")}
+          alt=""
+        />
+      </div>
+    );
   }
 }
 
