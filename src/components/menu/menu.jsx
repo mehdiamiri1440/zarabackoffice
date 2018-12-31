@@ -8,7 +8,10 @@ class Menu extends Component {
   }
   render() {
     return (
-      <div className=" menuGradient text-center w-100 p-0">
+      <div
+        className=" menuGradient text-center w-100 p-0"
+        style={{ minHeight: "100vh" }}
+      >
         <div
           style={{ cursor: "pointer", width: "100%" }}
           className="text-white d-flex justify-content-end openSubmenu position-relative  border-bottom text-center p-2"
