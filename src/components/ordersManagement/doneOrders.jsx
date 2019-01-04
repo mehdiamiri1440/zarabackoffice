@@ -1,23 +1,10 @@
 import React, { Component } from "react";
-import { withRouter } from "react-router-dom";
-class UserManagement extends Component {
+class DoneOrders extends Component {
   constructor(props) {
     super(props);
     this.state = {};
   }
-  renderSearchBox() {
-    return (
-      <div className="d-flex justify-content-end p-5 form-group">
-        <input
-          style={{ direction: "rtl" }}
-          type="text"
-          className="form-control py-4 w-25"
-          placeholder="جستجو در میان کاربران"
-        />
-      </div>
-    );
-  }
-  renderUsersTable() {
+  doneOrdersTable() {
     return (
       <table className="table table-striped table-hover table-light">
         <thead>
@@ -49,13 +36,8 @@ class UserManagement extends Component {
     );
   }
   render() {
-    return (
-      <div className="col">
-        {this.renderSearchBox()}
-        {this.renderUsersTable()}
-      </div>
-    );
+    return <div className="col">{this.doneOrdersTable()}</div>;
   }
 }
 
-export default withRouter(UserManagement);
+export default DoneOrders;

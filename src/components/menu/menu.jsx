@@ -33,7 +33,7 @@ class Menu extends Component {
               </Link>
               <Link
                 style={{ textDecoration: "none" }}
-                to="/women"
+                to="/category/women"
                 className="border-bottom py-1 text-white w-100 d-flex align-items-center justify-content-end"
               >
                 <span className="px-2">بانوان </span>
@@ -41,7 +41,7 @@ class Menu extends Component {
               </Link>
               <Link
                 style={{ textDecoration: "none" }}
-                to="/men"
+                to="/category/men"
                 className="py-1 w-100 text-white d-flex align-items-center justify-content-end"
               >
                 <span className="px-2">آقایان </span>
@@ -53,6 +53,40 @@ class Menu extends Component {
             <i className="far fa-window-restore text-center px-2 align-middle" />
           </span>
         </div>
+        <div
+          style={{ cursor: "pointer", width: "100%" }}
+          className="text-white d-flex justify-content-end openSubmenu position-relative  border-bottom text-center p-2"
+        >
+          <span className="text-center  align-middle">مدیریت سفارشات</span>
+          <div
+            id="submenu"
+            style={{ right: "100%", top: 0 }}
+            className="position-absolute w-100  submenu"
+          >
+            <div className="align-middle   p-2">
+              <Link
+                style={{ textDecoration: "none" }}
+                to="/orders/doneOrders"
+                className="border-bottom text-white py-1 w-100 d-flex align-items-center justify-content-end"
+              >
+                <span className="px-2">انجام شده ها</span>
+                <i className="fas fa-clipboard-check" />
+              </Link>
+              <Link
+                style={{ textDecoration: "none" }}
+                to="/orders/onHoldOrders"
+                className="border-bottom py-1 text-white w-100 d-flex align-items-center justify-content-end"
+              >
+                <span className="px-2">در انتظار انجام</span>
+                <i className="fas fa-stopwatch" />
+              </Link>
+            </div>
+          </div>
+          <span>
+            <i className="fas fa-shopping-basket text-center px-2 align-middle" />
+          </span>
+        </div>
+
         <Link
           to="/productManagement"
           style={{ textDecoration: "none", cursor: "pointer", width: "100%" }}
@@ -98,7 +132,7 @@ class Menu extends Component {
           </span>
         </Link>
         <Link
-          to="slidesManagement"
+          to="/slidesManagement"
           style={{ textDecoration: "none", cursor: "pointer", width: "100%" }}
           className="text-white d-flex position-relative justify-content-end openSubmenu border-bottom text-center  p-2"
         >

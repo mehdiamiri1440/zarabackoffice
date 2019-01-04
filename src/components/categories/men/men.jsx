@@ -4,9 +4,8 @@ import "./men.css";
 class Menu extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = { image: "" };
   }
-  insertCategoryPicture() {}
   renderTableOfMenCloths() {
     return (
       <table className="table table-hover table-striped table-light">
@@ -45,6 +44,34 @@ class Menu extends Component {
       </table>
     );
   }
+  upload(file) {
+    var formData = new FormData();
+    formData.append("files", file);
+    fetch("http://172.31.0.110:3003/document/upload", {
+      method: "POST",
+      body: formData
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        console.log("it is the response", responseJson);
+        this.setState({ image: responseJson });
+      })
+      .catch(error => console.error("Error:", error));
+  }
+  insertCategoryPicture() {
+    fetch("http://172.31.0.110:3003/document/upload", {
+      method: "POST",
+      body: {
+        category: "men",
+        image: this.state.image
+      }
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        console.log("inserted", responseJson);
+      })
+      .catch(error => console.error("Error:", error));
+  }
   render() {
     return (
       <div className="w-100 pr-0 col-12">
@@ -61,7 +88,11 @@ class Menu extends Component {
             src={require("../../../content/images/camera.png")}
             alt=""
           />
-          <input type="file" style={{ display: "none" }} />
+          <input
+            onChange={event => this.upload(event.target.files(0))}
+            type="file"
+            style={{ display: "none" }}
+          />
         </label>
         <div className=" d-flex justify-content-center">
           <button

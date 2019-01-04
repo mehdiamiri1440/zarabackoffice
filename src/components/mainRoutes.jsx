@@ -8,6 +8,8 @@ import NewIn from "./categories/newIn/newIn";
 import UserManagement from "./userManagement/usermanagement";
 import Men from "./categories/men/men";
 import ProductManagement from "./productManagement/productManagement";
+import DoneOrders from "./ordersManagement/doneOrders";
+import OnHoldOrders from "./ordersManagement/onHoldOrders";
 class MainRoutes extends Component {
   static init() {
     return (
@@ -16,6 +18,16 @@ class MainRoutes extends Component {
           <Switch>
             {/* <Route from="/" to="/landing" /> */}
 
+            <Route
+              exact
+              path="/orders/doneOrders"
+              render={() => <DoneOrders {...this.props} />}
+            />
+            <Route
+              exact
+              path="/orders/onHoldOrders"
+              render={() => <OnHoldOrders {...this.props} />}
+            />
             <Route
               exact
               path="/"
@@ -28,10 +40,14 @@ class MainRoutes extends Component {
             />
             <Route
               exact
-              path="/women"
+              path="/category/women"
               render={() => <Women {...this.props} />}
             />
-            <Route exact path="/men" render={() => <Men {...this.props} />} />
+            <Route
+              exact
+              path="/category/men"
+              render={() => <Men {...this.props} />}
+            />
             <Route
               exact
               path="/userManagement"
@@ -62,3 +78,4 @@ class MainRoutes extends Component {
 }
 
 export default withRouter(MainRoutes);
+//Rage Italic, Lucida Calligraphy
