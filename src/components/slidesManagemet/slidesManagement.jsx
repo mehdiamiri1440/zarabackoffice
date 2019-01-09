@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
+import { serverAddress } from "./../../utility/consts";
 class SlidesManagement extends Component {
   constructor(props) {
     super(props);
@@ -15,7 +16,7 @@ class SlidesManagement extends Component {
     };
   }
   makeObject(type) {
-    fetch(`http://192.168.1.194:3003/document/upload`, {
+    fetch(`${serverAddress}/document/upload`, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -40,7 +41,7 @@ class SlidesManagement extends Component {
     var formData = new FormData();
     let images = this.state.images;
     formData.append("files", file);
-    fetch("http://192.168.1.194:3003/document/upload", {
+    fetch(`${serverAddress}/document/upload`, {
       method: "POST",
       body: formData
     })
@@ -56,7 +57,7 @@ class SlidesManagement extends Component {
       .catch(error => console.log("Error:", error));
   }
   getCarousels() {
-    fetch(`http://192.168.1.194:3003/carousel`, {
+    fetch(`${serverAddress}/carousel`, {
       method: "GET",
       headers: {
         Accept: "application/json",
@@ -77,7 +78,7 @@ class SlidesManagement extends Component {
     this.getCarousels();
   }
   deleteCarousel(id) {
-    fetch(`http://192.168.1.194:3003/carousel`, {
+    fetch(`${serverAddress}/carousel`, {
       method: "DELETE",
       headers: {
         Accept: "application/json",
@@ -519,7 +520,7 @@ class SlidesManagement extends Component {
       target: this.state.target ? "_blank" : "_self"
     };
     console.log(x);
-    fetch(`http://192.168.1.194:3003/carousel`, {
+    fetch(`${serverAddress}/carousel`, {
       method: "POST",
       headers: {
         Accept: "application/json",

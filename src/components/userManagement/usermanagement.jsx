@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
+import { serverAddress } from "./../../utility/consts";
 class UserManagement extends Component {
   constructor(props) {
     super(props);
@@ -9,7 +10,7 @@ class UserManagement extends Component {
     this.getUsers();
   }
   getUsers() {
-    fetch("http://192.168.43.102:3003/user", {
+    fetch(`${serverAddress}/user`, {
       method: "GET"
     })
       .then(response => response.json())

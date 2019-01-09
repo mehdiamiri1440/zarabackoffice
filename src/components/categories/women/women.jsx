@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
+import { serverAddress } from "./../../../utility/consts";
 class Women extends Component {
   constructor(props) {
     super(props);
@@ -46,7 +47,7 @@ class Women extends Component {
   upload(file) {
     var formData = new FormData();
     formData.append("files", file);
-    fetch("http://172.31.0.110:3003/document/upload", {
+    fetch(`${serverAddress}/document/upload`, {
       method: "POST",
       body: formData
     })
@@ -58,7 +59,7 @@ class Women extends Component {
       .catch(error => console.error("Error:", error));
   }
   insertCategoryPicture() {
-    fetch("http://172.31.0.110:3003/document/upload", {
+    fetch(`${serverAddress}/document/upload`, {
       method: "POST",
       body: {
         category: "women",

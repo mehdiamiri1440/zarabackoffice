@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
+import { serverAddress } from "./../../utility/consts";
 class ProductManagement extends Component {
   constructor(props) {
     super(props);
@@ -23,7 +24,7 @@ class ProductManagement extends Component {
     this.getAllProducts();
   }
   getAllProducts() {
-    fetch(`http://192.168.1.194:3003/product`, {
+    fetch(`${serverAddress}/product`, {
       method: "GET",
       headers: {
         Accept: "application/json",
@@ -39,7 +40,7 @@ class ProductManagement extends Component {
   }
 
   insertCategoryPicture() {
-    fetch(`http://192.168.1.194:3003/product`, {
+    fetch(`${serverAddress}/product`, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -159,7 +160,7 @@ class ProductManagement extends Component {
   }
   deleteProduct(id) {
     console.log("id", id);
-    fetch(`http://192.168.1.194:3003/product`, {
+    fetch(`${serverAddress}/product`, {
       method: "DELETE",
       headers: {
         Accept: "application/json",
@@ -249,7 +250,7 @@ class ProductManagement extends Component {
     let images = this.state.images;
     formData.append("files", file);
 
-    fetch("http://192.168.1.194:3003/document/upload", {
+    fetch(`${serverAddress}/document/upload`, {
       method: "POST",
       body: formData
     })
@@ -259,9 +260,7 @@ class ProductManagement extends Component {
           "it is the respinmse josn and it is the true:",
           responseJson
         );
-        images[index] = `http://192.168.1.194:3003/document/${
-          responseJson.filename
-        }`;
+        images[index] = `${serverAddress}/document/${responseJson.filename}`;
         console.log(this.state.images, images);
         this.setState({ images });
       })
