@@ -3,10 +3,19 @@ import { withRouter } from "react-router-dom";
 class SlidesManagement extends Component {
   constructor(props) {
     super(props);
-    this.state = { wholeObject: [], category: "", images: [], imageGuid: "" };
+    this.state = {
+      wholeObject: [],
+      carousels: [],
+      category: "",
+      images: [],
+      show: false,
+      target: false,
+      categories: "",
+      imageGuid: ""
+    };
   }
   makeObject(type) {
-    fetch(`http://192.168.43.102:3003/document/upload`, {
+    fetch(`http://192.168.1.194:3003/document/upload`, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -29,24 +38,94 @@ class SlidesManagement extends Component {
   // }
   upload(indexInWholeObject, file) {
     var formData = new FormData();
-    let wholeObject = this.state.wholeObject;
+    let images = this.state.images;
     formData.append("files", file);
-
-    fetch("http://172.31.0.110:3003/document/upload", {
+    fetch("http://192.168.1.194:3003/document/upload", {
       method: "POST",
       body: formData
     })
       .then(response => response.json())
       .then(responseJson => {
-        console.log("it is the response", responseJson);
-        wholeObject[indexInWholeObject].image = responseJson;
+        images[indexInWholeObject] = `http://192.168.1.194:3003/document/${
+          responseJson.filename
+        }`;
+        this.setState({ images }, () => {
+          console.log("my images:", this.state.images);
+        });
       })
-      .catch(error => console.error("Error:", error));
+      .catch(error => console.log("Error:", error));
   }
-  selectedCategory(indexInWholeObject, category) {
-    let wholeObject = this.state.wholeObject;
-    wholeObject[indexInWholeObject].category = category;
-    this.setState({ wholeObject });
+  getCarousels() {
+    fetch(`http://192.168.1.194:3003/carousel`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      }
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        console.log("it is the countires", responseJson);
+        // responseJson.map(roleID => rolesID.push(roleID.Id));
+        this.setState({ carousels: responseJson });
+      })
+      .catch(error => {
+        console.log("it was false", error);
+      });
+  }
+  componentDidMount() {
+    this.getCarousels();
+  }
+  deleteCarousel(id) {
+    fetch(`http://192.168.1.194:3003/carousel`, {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        _id: id
+      })
+    })
+      .then(response => response.json())
+      .then(responseJson => {})
+      .catch(error => {
+        console.log(error, "it is the error");
+      });
+    this.getCarousels();
+  }
+  renderCarouselsTable() {
+    return (
+      <table className="table table-hover table-striped">
+        <thead>
+          <tr>
+            <th className="text-center align-middle">دسته بندی</th>
+            <th className="text-center align-middle">عکس</th>
+            <th className="text-center align-middle" />
+          </tr>
+        </thead>
+        <tbody>
+          {this.state.carousels.map((carousel, indx) => (
+            <tr key={indx}>
+              <td className="text-center align-middle">{carousel.location}</td>
+              <td className="text-center align-middle">
+                <img
+                  style={{ width: 70, height: 70 }}
+                  src={carousel.image}
+                  alt=""
+                />
+              </td>
+              <td className="text-center align-middle">
+                <i
+                  onClick={() => this.deleteCarousel(carousel._id)}
+                  className="fa fa-trash"
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
   }
   renderUploadParts() {
     return (
@@ -58,9 +137,13 @@ class SlidesManagement extends Component {
               className="d-flex justify-content-center"
             >
               <img
-                className="rounded w-75 h-100"
-                style={{ border: "1px solid green" }}
-                src={require("../../content/images/camera.png")}
+                className="rounded  "
+                style={{ width: 300, height: 300, border: "1px solid green" }}
+                src={
+                  this.state.images && this.state.images[0]
+                    ? this.state.images[0]
+                    : require("../../content/images/camera.png")
+                }
                 alt=""
               />
               <input
@@ -72,22 +155,54 @@ class SlidesManagement extends Component {
               />
             </label>
             <div className="d-flex justify-content-center py-2">
-              {/* <button
-                onClick={() => this.makeObject(1)}
+              <button
+                onClick={() => this.insertSlides(0)}
                 className="btn mx-3 btn-primary"
               >
                 اضافه کردن
-              </button> */}
+              </button>
               <input
-                onClick={() => this.selectedCategory(0, "men")}
+                onClick={() =>
+                  this.setState({
+                    show: !this.state.show
+                  })
+                }
+                type="checkbox"
+                name="category0"
+              />
+              <span className="d-flex align-items-center px-1">
+                نمایش داده شود
+              </span>
+              <input
+                onClick={() =>
+                  this.setState({
+                    target: !this.state.target
+                  })
+                }
+                type="checkbox"
+                name="category0"
+              />
+              <span className="d-flex align-items-center px-1">
+                در صفحه جدید باز شود
+              </span>
+              <input
+                onClick={() =>
+                  this.setState({
+                    category: "men"
+                  })
+                }
                 type="radio"
-                name="category"
+                name="category0"
               />
               <span className="d-flex align-items-center px-1">آقایان</span>
               <input
-                onClick={() => this.selectedCategory(0, "women")}
+                onClick={() =>
+                  this.setState({
+                    category: "women"
+                  })
+                }
                 type="radio"
-                name="category"
+                name="category0"
               />
               <span className="d-flex align-items-center px-1">بانوان</span>
             </div>
@@ -98,9 +213,13 @@ class SlidesManagement extends Component {
               className="d-flex justify-content-center"
             >
               <img
-                className="rounded w-75 h-100"
-                style={{ border: "1px solid green" }}
-                src={require("../../content/images/camera.png")}
+                className="rounded  "
+                style={{ width: 300, height: 300, border: "1px solid green" }}
+                src={
+                  this.state.images && this.state.images[1]
+                    ? this.state.images[1]
+                    : require("../../content/images/camera.png")
+                }
                 alt=""
               />
               <input
@@ -110,22 +229,54 @@ class SlidesManagement extends Component {
               />
             </label>
             <div className="d-flex justify-content-center py-2">
-              {/* <button
-                onClick={() => this.makeObject(2)}
+              <button
+                onClick={() => this.insertSlides(1)}
                 className="btn mx-3 btn-primary"
               >
                 اضافه کردن
-              </button> */}
+              </button>
               <input
-                onClick={() => this.selectedCategory(1, "men")}
+                onClick={() =>
+                  this.setState({
+                    show: !this.state.show
+                  })
+                }
+                type="checkbox"
+                name="category0"
+              />
+              <span className="d-flex align-items-center px-1">
+                نمایش داده شود
+              </span>
+              <input
+                onClick={() =>
+                  this.setState({
+                    target: !this.state.target
+                  })
+                }
+                type="checkbox"
+                name="category0"
+              />
+              <span className="d-flex align-items-center px-1">
+                در صفحه جدید باز شود
+              </span>
+              <input
+                onClick={() =>
+                  this.setState({
+                    category: "men"
+                  })
+                }
                 type="radio"
-                name="category"
+                name="category1"
               />
               <span className="d-flex align-items-center px-1">آقایان</span>
               <input
-                onClick={() => this.selectedCategory(1, "men")}
+                onClick={() =>
+                  this.setState({
+                    category: "women"
+                  })
+                }
                 type="radio"
-                name="category"
+                name="category1"
               />
               <span className="d-flex align-items-center px-1">بانوان</span>
             </div>
@@ -138,9 +289,13 @@ class SlidesManagement extends Component {
               className="d-flex justify-content-center"
             >
               <img
-                className="rounded w-75 h-100"
-                style={{ border: "1px solid green" }}
-                src={require("../../content/images/camera.png")}
+                className="rounded  "
+                style={{ width: 300, height: 300, border: "1px solid green" }}
+                src={
+                  this.state.images && this.state.images[2]
+                    ? this.state.images[2]
+                    : require("../../content/images/camera.png")
+                }
                 alt=""
               />
               <input
@@ -150,20 +305,52 @@ class SlidesManagement extends Component {
               />
             </label>
             <div className="d-flex justify-content-center py-2">
-              {/* <button
-                onClick={() => this.makeObject(3)}
+              <button
+                onClick={() => this.insertSlides(2)}
                 className="btn mx-3 btn-primary"
               >
                 اضافه کردن
-              </button> */}
+              </button>
               <input
-                onClick={() => this.selectedCategory(2, "men")}
+                onClick={() =>
+                  this.setState({
+                    show: !this.state.show
+                  })
+                }
+                type="checkbox"
+                name="category0"
+              />
+              <span className="d-flex align-items-center px-1">
+                نمایش داده شود
+              </span>
+              <input
+                onClick={() =>
+                  this.setState({
+                    target: !this.state.target
+                  })
+                }
+                type="checkbox"
+                name="category0"
+              />
+              <span className="d-flex align-items-center px-1">
+                در صفحه جدید باز شود
+              </span>
+              <input
+                onClick={() =>
+                  this.setState({
+                    category: "men"
+                  })
+                }
                 type="radio"
                 name="category"
               />
               <span className="d-flex align-items-center px-1">آقایان</span>
               <input
-                onClick={() => this.selectedCategory(2, "men")}
+                onClick={() =>
+                  this.setState({
+                    category: "women"
+                  })
+                }
                 type="radio"
                 name="category"
               />
@@ -176,9 +363,13 @@ class SlidesManagement extends Component {
               className="d-flex justify-content-center"
             >
               <img
-                className="rounded w-75 h-100"
-                style={{ border: "1px solid green" }}
-                src={require("../../content/images/camera.png")}
+                className="rounded  "
+                style={{ width: 300, height: 300, border: "1px solid green" }}
+                src={
+                  this.state.images && this.state.images[3]
+                    ? this.state.images[3]
+                    : require("../../content/images/camera.png")
+                }
                 alt=""
               />
               <input
@@ -188,20 +379,52 @@ class SlidesManagement extends Component {
               />
             </label>
             <div className="d-flex justify-content-center py-2">
-              {/* <button
-                onClick={() => this.makeObject(4)}
+              <button
+                onClick={() => this.insertSlides(3)}
                 className="btn mx-3 btn-primary"
               >
                 اضافه کردن
-              </button> */}
+              </button>
               <input
-                onClick={() => this.selectedCategory(3, "men")}
+                onClick={() =>
+                  this.setState({
+                    show: !this.state.show
+                  })
+                }
+                type="checkbox"
+                name="category0"
+              />
+              <span className="d-flex align-items-center px-1">
+                نمایش داده شود
+              </span>
+              <input
+                onClick={() =>
+                  this.setState({
+                    target: !this.state.target
+                  })
+                }
+                type="checkbox"
+                name="category0"
+              />
+              <span className="d-flex align-items-center px-1">
+                در صفحه جدید باز شود
+              </span>
+              <input
+                onClick={() =>
+                  this.setState({
+                    category: "men"
+                  })
+                }
                 type="radio"
                 name="category"
               />
               <span className="d-flex align-items-center px-1">آقایان</span>
               <input
-                onClick={() => this.selectedCategory(3, "men")}
+                onClick={() =>
+                  this.setState({
+                    category: "women"
+                  })
+                }
                 type="radio"
                 name="category"
               />
@@ -216,9 +439,13 @@ class SlidesManagement extends Component {
               className="d-flex justify-content-center"
             >
               <img
-                className="rounded w-50 h-100"
-                style={{ border: "1px solid green" }}
-                src={require("../../content/images/camera.png")}
+                className="rounded "
+                style={{ width: 300, height: 300, border: "1px solid green" }}
+                src={
+                  this.state.images && this.state.images[4]
+                    ? this.state.images[4]
+                    : require("../../content/images/camera.png")
+                }
                 alt=""
               />
               <input
@@ -228,20 +455,52 @@ class SlidesManagement extends Component {
               />
             </label>
             <div className="d-flex justify-content-center py-2">
-              {/* <button
-                onClick={() => this.makeObject(5)}
+              <button
+                onClick={() => this.insertSlides(4)}
                 className="btn mx-3 btn-primary"
               >
                 اضافه کردن
-              </button> */}
+              </button>
               <input
-                onClick={() => this.selectedCategory(4, "men")}
+                onClick={() =>
+                  this.setState({
+                    show: !this.state.show
+                  })
+                }
+                type="checkbox"
+                name="category0"
+              />
+              <span className="d-flex align-items-center px-1">
+                نمایش داده شود
+              </span>
+              <input
+                onClick={() =>
+                  this.setState({
+                    target: !this.state.target
+                  })
+                }
+                type="checkbox"
+                name="category0"
+              />
+              <span className="d-flex align-items-center px-1">
+                در صفحه جدید باز شود
+              </span>
+              <input
+                onClick={() =>
+                  this.setState({
+                    category: "men"
+                  })
+                }
                 type="radio"
                 name="category"
               />
               <span className="d-flex align-items-center px-1">آقایان</span>
               <input
-                onClick={() => this.selectedCategory(4, "men")}
+                onClick={() =>
+                  this.setState({
+                    category: "women"
+                  })
+                }
                 type="radio"
                 name="category"
               />
@@ -249,26 +508,28 @@ class SlidesManagement extends Component {
             </div>
           </div>
         </div>
-        <div className="mb-4 pt-3 d-flex justify-content-center">
-          <button
-            onClick={() => this.insertSlides()}
-            className="btn py-3 btn-success w-75"
-          >
-            ارسال اطلاعات
-          </button>
-        </div>
       </React.Fragment>
     );
   }
-  insertSlides() {
-    fetch(`http://192.168.43.102:3003/carousels`, {
+  insertSlides(index) {
+    let x = {
+      location: this.state.category,
+      image: this.state.images[index],
+      show: this.state.show,
+      target: this.state.target ? "_blank" : "_self"
+    };
+    console.log(x);
+    fetch(`http://192.168.1.194:3003/carousel`, {
       method: "POST",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        slides: this.state.wholeObject
+        location: this.state.category,
+        image: this.state.images[index],
+        show: this.state.show,
+        target: this.state.target ? "_blank" : "_self"
       })
     })
       .then(response => response.json())
@@ -280,7 +541,12 @@ class SlidesManagement extends Component {
       });
   }
   render() {
-    return <div>{this.renderUploadParts()}</div>;
+    return (
+      <div>
+        {this.renderUploadParts()}
+        {this.renderCarouselsTable()}
+      </div>
+    );
   }
 }
 

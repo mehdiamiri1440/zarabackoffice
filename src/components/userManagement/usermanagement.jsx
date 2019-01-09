@@ -3,7 +3,21 @@ import { withRouter } from "react-router-dom";
 class UserManagement extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = { users: [] };
+  }
+  componentDidMount() {
+    this.getUsers();
+  }
+  getUsers() {
+    fetch("http://192.168.43.102:3003/user", {
+      method: "GET"
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        console.log("it is the response", responseJson);
+        this.setState({ users: responseJson });
+      })
+      .catch(error => console.error("Error:", error));
   }
   renderSearchBox() {
     return (

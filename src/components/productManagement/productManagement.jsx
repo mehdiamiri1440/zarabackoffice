@@ -5,28 +5,57 @@ class ProductManagement extends Component {
     super(props);
     this.state = {
       category: "",
-      images: [],
+      colorName: "",
+      colors: [],
+      products: [],
+      images: new Array(6),
       isAvailable: false,
+      hashTags: [],
       price: "",
-      title: "",
+      name: "",
+      hashTagName: "",
       sizes: [],
+      description: "",
       showInNews: false
     };
   }
+  componentDidMount() {
+    this.getAllProducts();
+  }
+  getAllProducts() {
+    fetch(`http://192.168.1.194:3003/product`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      }
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        this.setState({ products: responseJson });
+        console.log("it is the response", responseJson);
+      })
+      .catch(error => {});
+  }
+
   insertCategoryPicture() {
-    fetch(`http://192.168.43.102:3003/product`, {
+    fetch(`http://192.168.1.194:3003/product`, {
       method: "POST",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
+        registerDate: Date.now(),
+        color: this.state.colors,
+        description: this.state.description,
+        hashTag: this.state.hashTags,
         isAvailable: this.state.isAvailable,
         sizes: this.state.sizes,
-        images: this.state.images,
+        images: this.state.images.filter(item => item !== undefined),
         isNew: this.state.showInNews,
         price: this.state.price,
-        category: this.state.category,
+        categoryName: this.state.category,
         name: this.state.name
       })
     })
@@ -38,6 +67,56 @@ class ProductManagement extends Component {
         console.log(error, "it is the error");
       });
   }
+  changeColors() {}
+  renderColorModalBody(index) {
+    return (
+      <div className="modal fade" id={`myModal-${index}`}>
+        <div
+          style={{ maxWidth: "100%", maxHeight: "100%" }}
+          className="modal-dialog"
+        >
+          <div className="modal-content">
+            <div className="modal-header d-flex justify-content-center">
+              <h3>رنگ ها</h3>
+              <button type="button" className="close" data-dismiss="modal">
+                &times;
+              </button>
+            </div>
+            <div className="modal-body">
+              <table>
+                <thead>
+                  <tr>
+                    <td>sdf</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {this.state.products.colors &&
+                    this.state.colors.length &&
+                    this.state.colors.map((color, indx) => (
+                      <tr key={indx}>
+                        <td>{color}</td>
+                        <td>
+                          <input onClick={() => this.changeColors()} />
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-danger"
+                data-dismiss="modal"
+              >
+                بستن
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   renderMenuItems(index) {
     return (
       <div className="text-center">
@@ -48,7 +127,7 @@ class ProductManagement extends Component {
             className="dropdown-item"
             data-target={`#myModal-${index}`}
           >
-            ویرایش جزییات
+            ویرایش رنگ ها
           </div>
           <div className="dropdown-item" href="#" />
           <div
@@ -56,18 +135,46 @@ class ProductManagement extends Component {
             data-target={`#rolemodal-${index}`}
             className="dropdown-item"
           >
-            sdc
+            ویرایش سایز ها
           </div>
           <div
-            onClick={() => this.customAlert(index)}
+            onClick={() => {
+              let products = this.state.products;
+              products[index].isAvailable = !products[index].isAvailable;
+              this.setState({ products });
+            }}
             className="dropdown-item"
             href="#"
           >
-            sdc
+            {this.state.products &&
+            this.state.products.length &&
+            this.state.products[index].isAvailable
+              ? "ناموجود کردن"
+              : "موجود کردن"}
           </div>
         </div>
+        {this.renderColorModalBody(index)}
       </div>
     );
+  }
+  deleteProduct(id) {
+    console.log("id", id);
+    fetch(`http://192.168.1.194:3003/product`, {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: id
+      })
+    })
+      .then(response => response.json())
+      .then(responseJson => {})
+      .catch(error => {
+        console.log(error, "it is the error");
+      });
+    this.getAllProducts();
   }
   renderTableOfMenCloths() {
     return (
@@ -75,6 +182,7 @@ class ProductManagement extends Component {
         <thead>
           <tr>
             <th className="text-center align-middle" />
+            <th className="text-center align-middle">وضعیت</th>
             <th className="text-center align-middle">بیشتر</th>
             <th className="text-center align-middle">عکس اصلی</th>
             <th className="text-center align-middle">نام کالا</th>
@@ -83,53 +191,79 @@ class ProductManagement extends Component {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td
-              style={{ cursor: "pointer" }}
-              className="text-center align-middle"
-            >
-              <i data-toggle="dropdown" className="fas fa-trash-alt" />
-              <div className="dropdown-menu">
-                <div className="dropdown-item">dsfsdfwef</div>
-              </div>
-            </td>
-            <td
-              style={{ cursor: "pointer" }}
-              className="text-center align-middle"
-            >
-              <div>{this.renderMenuItems(1)}</div>
-            </td>
-            <td
-              style={{ width: "15%", height: "15%" }}
-              className="text-center align-middle"
-            >
-              <img
-                src={require("../../content/images/camera.png")}
-                style={{ width: "100%", height: "100%" }}
-                alt=""
-              />
-            </td>
-            <td className="text-center align-middle">کت</td>
-            <td className="text-center align-middle">10/9/97</td>
-            <td className="text-center align-middle">4000 ریال</td>
-          </tr>
+          {this.state.products &&
+            this.state.products.length &&
+            this.state.products.map((product, index) => (
+              <tr>
+                <td
+                  style={{ cursor: "pointer" }}
+                  className="text-center align-middle"
+                >
+                  <i
+                    onClick={() => this.deleteProduct(product._id)}
+                    className="fas fa-trash-alt"
+                  />
+                </td>
+                <td
+                  style={{ cursor: "pointer" }}
+                  className="text-center align-middle"
+                >
+                  <i
+                    className={`${
+                      product.isAvailable ? "fas fa-check-double" : "fas fa-ban"
+                    }`}
+                  />
+                </td>
+                <td
+                  style={{ cursor: "pointer" }}
+                  className="text-center align-middle"
+                >
+                  <div>{this.renderMenuItems(index)}</div>
+                </td>
+                <td className="text-center align-middle">
+                  <img
+                    src={product.images[0]}
+                    style={{ width: 70, height: 70 }}
+                    alt="sdfdsf"
+                  />
+                </td>
+                <td className="text-center align-middle">{product.name}</td>
+                <td className="text-center align-middle">
+                  {product.registerDate
+                    ? this.renderTime(product.registerDate)
+                    : null}
+                </td>
+                <td className="text-center align-middle">{product.price}</td>
+              </tr>
+            ))}
         </tbody>
       </table>
     );
   }
-  upload(indexInWholeObject, file) {
+  renderTime(time) {
+    let realTime = new Date(time);
+    return realTime.toISOString();
+  }
+  upload(index, file) {
     var formData = new FormData();
-    let wholeObject = this.state.wholeObject;
+    let images = this.state.images;
     formData.append("files", file);
 
-    fetch("http://172.31.0.110:3003/document/upload", {
+    fetch("http://192.168.1.194:3003/document/upload", {
       method: "POST",
       body: formData
     })
       .then(response => response.json())
       .then(responseJson => {
-        console.log("it is the response", responseJson);
-        wholeObject[indexInWholeObject].image = responseJson;
+        console.log(
+          "it is the respinmse josn and it is the true:",
+          responseJson
+        );
+        images[index] = `http://192.168.1.194:3003/document/${
+          responseJson.filename
+        }`;
+        console.log(this.state.images, images);
+        this.setState({ images });
       })
       .catch(error => console.error("Error:", error));
   }
@@ -147,14 +281,17 @@ class ProductManagement extends Component {
             className="d-flex justify-content-center"
           >
             <img
-              className="rounded w-75 h-100"
-              style={{ border: "1px solid green" }}
-              src={require("../../content/images/camera.png")}
+              className="rounded "
+              style={{ width: 550, height: 550, border: "1px solid red" }}
+              src={
+                this.state.images && this.state.images[0]
+                  ? this.state.images[0]
+                  : require("../../content/images/camera.png")
+              }
               alt=""
             />
             <input
-              onChange={event => this.upload(0, event.target.files(0))}
-              value={this.state.images[0]}
+              onChange={event => this.upload(0, event.target.files[0])}
               type="file"
               style={{ display: "none" }}
             />
@@ -164,50 +301,17 @@ class ProductManagement extends Component {
             className="d-flex justify-content-center"
           >
             <img
-              className="rounded w-75 h-100"
-              style={{ border: "1px solid green" }}
-              src={require("../../content/images/camera.png")}
+              className="rounded   "
+              style={{ width: 550, height: 550, border: "1px solid green" }}
+              src={
+                this.state.images && this.state.images[1]
+                  ? this.state.images[1]
+                  : require("../../content/images/camera.png")
+              }
               alt=""
             />
             <input
-              onChange={event => this.upload(1, event.target.files(0))}
-              value={this.state.images[1]}
-              type="file"
-              style={{ display: "none" }}
-            />
-          </label>
-        </div>
-        <div className="d-flex justify-content-between ">
-          <label
-            style={{ cursor: "pointer" }}
-            className="d-flex justify-content-center"
-          >
-            <img
-              className="rounded w-75 h-100"
-              style={{ border: "1px solid green" }}
-              src={require("../../content/images/camera.png")}
-              alt=""
-            />
-            <input
-              onChange={event => this.upload(2, event.target.files(0))}
-              value={this.state.images[2]}
-              type="file"
-              style={{ display: "none" }}
-            />
-          </label>
-          <label
-            style={{ cursor: "pointer" }}
-            className="d-flex justify-content-center"
-          >
-            <img
-              className="rounded w-75 h-100"
-              style={{ border: "1px solid green" }}
-              src={require("../../content/images/camera.png")}
-              alt=""
-            />
-            <input
-              onChange={event => this.upload(3, event.target.files(0))}
-              value={this.state.images[3]}
+              onChange={event => this.upload(1, event.target.files[0])}
               type="file"
               style={{ display: "none" }}
             />
@@ -219,14 +323,17 @@ class ProductManagement extends Component {
             className="d-flex justify-content-center"
           >
             <img
-              className="rounded w-75 h-100"
-              style={{ border: "1px solid green" }}
-              src={require("../../content/images/camera.png")}
+              className="rounded   "
+              style={{ width: 550, height: 550, border: "1px solid green" }}
+              src={
+                this.state.images && this.state.images[2]
+                  ? this.state.images[2]
+                  : require("../../content/images/camera.png")
+              }
               alt=""
             />
             <input
-              onChange={event => this.upload(4, event.target.files(0))}
-              value={this.state.images[4]}
+              onChange={event => this.upload(2, event.target.files[0])}
               type="file"
               style={{ display: "none" }}
             />
@@ -236,14 +343,59 @@ class ProductManagement extends Component {
             className="d-flex justify-content-center"
           >
             <img
-              className="rounded w-75 h-100"
-              style={{ border: "1px solid green" }}
-              src={require("../../content/images/camera.png")}
+              className="rounded   "
+              style={{ width: 550, height: 550, border: "1px solid green" }}
+              src={
+                this.state.images && this.state.images[3]
+                  ? this.state.images[3]
+                  : require("../../content/images/camera.png")
+              }
               alt=""
             />
             <input
-              onChange={event => this.upload(5, event.target.files(0))}
-              value={this.state.images[5]}
+              onChange={event => this.upload(3, event.target.files[0])}
+              type="file"
+              style={{ display: "none" }}
+            />
+          </label>
+        </div>
+        <div className="d-flex justify-content-between ">
+          <label
+            style={{ cursor: "pointer" }}
+            className="d-flex justify-content-center"
+          >
+            <img
+              className="rounded   "
+              style={{ width: 550, height: 550, border: "1px solid green" }}
+              src={
+                this.state.images && this.state.images[4]
+                  ? this.state.images[4]
+                  : require("../../content/images/camera.png")
+              }
+              alt=""
+            />
+            <input
+              onChange={event => this.upload(4, event.target.files[0])}
+              type="file"
+              style={{ display: "none" }}
+            />
+          </label>
+          <label
+            style={{ cursor: "pointer" }}
+            className="d-flex justify-content-center"
+          >
+            <img
+              className="rounded   "
+              style={{ width: 550, height: 550, border: "1px solid green" }}
+              src={
+                this.state.images && this.state.images[5]
+                  ? this.state.images[5]
+                  : require("../../content/images/camera.png")
+              }
+              alt=""
+            />
+            <input
+              onChange={event => this.upload(5, event.target.files[0])}
               type="file"
               style={{ display: "none" }}
             />
@@ -257,7 +409,7 @@ class ProductManagement extends Component {
       <div className="d-flex justify-content-between p-4">
         <label className="d-flex  form-group">
           <input
-            onChange={event => this.setState({ title: event.target.value })}
+            onChange={event => this.setState({ name: event.target.value })}
             type="text"
             className="align-middle form-control"
           />
@@ -306,8 +458,11 @@ class ProductManagement extends Component {
     );
   }
   setSizes(size) {
-    let sizes = [];
-    sizes.push(size);
+    let sizes = this.state.sizes;
+    if (sizes && sizes.length > 0 && sizes.indexOf(size) !== -1) {
+      let indexOf = sizes.indexOf(size);
+      sizes.splice(indexOf, 1);
+    } else sizes.push(size);
     this.setState({ sizes });
   }
   render() {
@@ -390,7 +545,73 @@ class ProductManagement extends Component {
               }
             />
           </label>
+          <label className="px-3">
+            <button
+              onClick={() => {
+                let hashTags = this.state.hashTags;
+                hashTags.push(this.state.hashTagName);
+                this.setState({ hashTags, hashTagName: "" });
+              }}
+              className="btn btn-danger mx-2"
+            >
+              اضافه کردن
+            </button>
+            <input
+              className="align-middle px-1"
+              type="text"
+              value={this.state.hashTagName}
+              onChange={event =>
+                this.setState({ hashTagName: event.target.value })
+              }
+            />
+            <span className="text-center  align-middle px-1">: هشتگ </span>
+            <div>
+              {this.state.hashTags && this.state.hashTags.length
+                ? this.state.hashTags + " , "
+                : null}
+            </div>
+          </label>
         </div>
+        <div className=" d-flex justify-content-end px-5">
+          <label>
+            <button
+              onClick={() => {
+                let colors = this.state.colors;
+                colors.push(this.state.colorName);
+                this.setState({ colors, colorName: "" });
+              }}
+              className="btn btn-danger mx-2"
+            >
+              اضافه کردن
+            </button>
+            <input
+              className="align-middle px-1"
+              type="text"
+              value={this.state.colorName}
+              onChange={event =>
+                this.setState({ colorName: event.target.value })
+              }
+            />
+            <span className="text-center  align-middle px-1">: رنگ </span>
+            <div>
+              {this.state.colors && this.state.colors.length
+                ? this.state.colors + " , "
+                : null}
+            </div>
+          </label>
+        </div>
+        <label className="input-group">
+          <input
+            className="align-middle form-control w-75  px-1"
+            type="text"
+            value={this.state.description}
+            onChange={event =>
+              this.setState({ description: event.target.value })
+            }
+          />
+          <span className="text-center  align-middle px-1">: توضیحات </span>
+        </label>
+
         <div className=" d-flex justify-content-center">
           <button
             onClick={() => this.insertCategoryPicture()}
