@@ -1,12 +1,14 @@
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import { serverAddress } from "./../../utility/consts";
+import { numberWithCommas } from "./../../utility/index";
 class ProductManagement extends Component {
   constructor(props) {
     super(props);
     this.state = {
       category: "",
       colorName: "",
+      colorToChange: false,
       colors: [],
       products: [],
       images: new Array(6),
@@ -62,13 +64,33 @@ class ProductManagement extends Component {
     })
       .then(response => response.json())
       .then(responseJson => {
-        console.log("it is the response", responseJson);
+        this.setState({
+          description: "",
+          hashTags: [],
+          isAvailable: false,
+          sizes: [],
+          images: [],
+          showInNews: false,
+          price: "",
+          category: "",
+          name: ""
+        });
+        return this.getAllProducts();
       })
       .catch(error => {
         console.log(error, "it is the error");
       });
   }
-  changeColors() {}
+  changeColors(event, indx, index) {
+    let products = this.state.products;
+    products[index].color.splice(indx, 1);
+    this.setState({ products });
+  }
+  changeSizes(event, indx, index) {
+    let products = this.state.products;
+    products[index].sizes.splice(indx, 1);
+    this.setState({ products });
+  }
   renderColorModalBody(index) {
     return (
       <div className="modal fade" id={`myModal-${index}`}>
@@ -84,20 +106,25 @@ class ProductManagement extends Component {
               </button>
             </div>
             <div className="modal-body">
-              <table>
+              <table className="table table-hover table-striped table-light">
                 <thead>
                   <tr>
-                    <td>sdf</td>
+                    <td className="text-center align-middle">رنگ ها</td>
+                    <td className="text-center align-middle">ناموجود کردن</td>
                   </tr>
                 </thead>
                 <tbody>
-                  {this.state.products.colors &&
-                    this.state.colors.length &&
-                    this.state.colors.map((color, indx) => (
+                  {this.state.products[index].color &&
+                    this.state.products[index].color.map((color, indx) => (
                       <tr key={indx}>
-                        <td>{color}</td>
-                        <td>
-                          <input onClick={() => this.changeColors()} />
+                        <td className="text-center align-middle">{color}</td>
+                        <td className="text-center align-middle">
+                          <input
+                            type="checkbox"
+                            onClick={event =>
+                              this.changeColors(event, indx, index)
+                            }
+                          />
                         </td>
                       </tr>
                     ))}
@@ -106,11 +133,109 @@ class ProductManagement extends Component {
             </div>
             <div className="modal-footer">
               <button
+                onClick={() =>
+                  this.updateSizes(
+                    this.state.products[index]._id,
+                    this.state.products[index].sizes
+                  )
+                }
                 type="button"
                 className="btn btn-danger"
                 data-dismiss="modal"
               >
-                بستن
+                ناموجود کردن انتخاب شده ها
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  updateColors(id, color) {
+    fetch(`${serverAddress}/product/update`, {
+      method: "POST",
+      body: { _id: id, color: color }
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        console.log(
+          "it is the respinmse josn and it is the true:",
+          responseJson
+        );
+      })
+      .catch(error => {
+        console.log("it is error in changing colors");
+      });
+  }
+  updateSizes(id, sizes) {
+    fetch(`${serverAddress}/product/update`, {
+      method: "POST",
+      body: { _id: id, sizes: sizes }
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        console.log(
+          "it is the respinmse josn and it is the true:",
+          responseJson
+        );
+      })
+      .catch(error => {
+        console.log("it is error in changing colors");
+      });
+  }
+  renderSizesModalBody(index) {
+    return (
+      <div className="modal fade" id={`rolemodal-${index}`}>
+        <div
+          style={{ maxWidth: "100%", maxHeight: "100%" }}
+          className="modal-dialog"
+        >
+          <div className="modal-content">
+            <div className="modal-header d-flex justify-content-center">
+              <h3>سایز ها</h3>
+              <button type="button" className="close" data-dismiss="modal">
+                &times;
+              </button>
+            </div>
+            <div className="modal-body">
+              <table className="table table-hover table-striped table-light">
+                <thead>
+                  <tr>
+                    <td className="text-center align-middle">سایز ها</td>
+                    <td className="text-center align-middle">ناموجود کردن</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {this.state.products[index].sizes &&
+                    this.state.products[index].sizes.map((size, indx) => (
+                      <tr key={indx}>
+                        <td className="text-center align-middle">{size}</td>
+                        <td className="text-center align-middle">
+                          <input
+                            type="checkbox"
+                            onClick={event =>
+                              this.changeSizes(event, indx, index)
+                            }
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="modal-footer">
+              <button
+                onClick={() =>
+                  this.updateColors(
+                    this.state.products[index]._id,
+                    this.state.products[index].color
+                  )
+                }
+                type="button"
+                className="btn btn-danger"
+                data-dismiss="modal"
+              >
+                ناموجود کردن انتخاب شده ها
               </button>
             </div>
           </div>
@@ -155,6 +280,7 @@ class ProductManagement extends Component {
           </div>
         </div>
         {this.renderColorModalBody(index)}
+        {this.renderSizesModalBody(index)}
       </div>
     );
   }
@@ -185,6 +311,7 @@ class ProductManagement extends Component {
             <th className="text-center align-middle" />
             <th className="text-center align-middle">وضعیت</th>
             <th className="text-center align-middle">بیشتر</th>
+            <th className="text-center align-middle">دسته بندی</th>
             <th className="text-center align-middle">عکس اصلی</th>
             <th className="text-center align-middle">نام کالا</th>
             <th className="text-center align-middle">تاریخ ثبت</th>
@@ -222,6 +349,9 @@ class ProductManagement extends Component {
                   <div>{this.renderMenuItems(index)}</div>
                 </td>
                 <td className="text-center align-middle">
+                  {product.categoryName}
+                </td>
+                <td className="text-center align-middle">
                   <img
                     src={product.images[0]}
                     style={{ width: 70, height: 70 }}
@@ -234,7 +364,9 @@ class ProductManagement extends Component {
                     ? this.renderTime(product.registerDate)
                     : null}
                 </td>
-                <td className="text-center align-middle">{product.price}</td>
+                <td className="text-center align-middle">
+                  {numberWithCommas(product.price)}
+                </td>
               </tr>
             ))}
         </tbody>
@@ -281,7 +413,7 @@ class ProductManagement extends Component {
           >
             <img
               className="rounded "
-              style={{ width: 550, height: 550, border: "1px solid red" }}
+              style={{ width: 550, height: 550, border: "1px solid green" }}
               src={
                 this.state.images && this.state.images[0]
                   ? this.state.images[0]
@@ -468,7 +600,7 @@ class ProductManagement extends Component {
     return (
       <div className="w-100 pr-0 col-12">
         <div className=" p-3 w-100 d-flex justify-content-center">
-          <h3>مدیریت دسته بندی آقایان</h3>
+          <h3>مدیریت محصولات</h3>
         </div>
         {this.renderUploadPictures()}
         {this.productInfos()}
@@ -620,7 +752,7 @@ class ProductManagement extends Component {
           </button>
         </div>
         <div className="d-flex justify-content-end p-4">
-          <h3> کالا های موجود در این دسته بندی</h3>
+          <h3> کالا های موجود </h3>
         </div>
         <div className="w-100 justify-content-center d-flex p-3">
           {this.renderTableOfMenCloths()}

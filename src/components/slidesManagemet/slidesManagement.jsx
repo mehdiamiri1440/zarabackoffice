@@ -5,11 +5,17 @@ class SlidesManagement extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      products: [],
       wholeObject: [],
+      slideNumber: -1,
       carousels: [],
+      show: false,
+      location: "",
       category: "",
+      searchKey: "",
       images: [],
       show: false,
+      selectedProduct: {},
       target: false,
       categories: "",
       imageGuid: ""
@@ -47,7 +53,7 @@ class SlidesManagement extends Component {
     })
       .then(response => response.json())
       .then(responseJson => {
-        images[indexInWholeObject] = `http://192.168.1.194:3003/document/${
+        images[indexInWholeObject] = `${serverAddress}/document/${
           responseJson.filename
         }`;
         this.setState({ images }, () => {
@@ -89,7 +95,9 @@ class SlidesManagement extends Component {
       })
     })
       .then(response => response.json())
-      .then(responseJson => {})
+      .then(responseJson => {
+        console.log("deleted");
+      })
       .catch(error => {
         console.log(error, "it is the error");
       });
@@ -108,7 +116,9 @@ class SlidesManagement extends Component {
         <tbody>
           {this.state.carousels.map((carousel, indx) => (
             <tr key={indx}>
-              <td className="text-center align-middle">{carousel.location}</td>
+              <td className="text-center align-middle">
+                {carousel.location.split("/")[0]}
+              </td>
               <td className="text-center align-middle">
                 <img
                   style={{ width: 70, height: 70 }}
@@ -118,7 +128,10 @@ class SlidesManagement extends Component {
               </td>
               <td className="text-center align-middle">
                 <i
-                  onClick={() => this.deleteCarousel(carousel._id)}
+                  onClick={event => {
+                    event.stopPropagation();
+                    return this.deleteCarousel(carousel._id);
+                  }}
                   className="fa fa-trash"
                 />
               </td>
@@ -126,6 +139,78 @@ class SlidesManagement extends Component {
           ))}
         </tbody>
       </table>
+    );
+  }
+  showProducts() {
+    return (
+      <div
+        onMouseLeave={() => this.setState({ products: [] })}
+        style={{ maxHeight: 200, overflow: "scroll", cursor: "pointer" }}
+        className="border bg-light"
+      >
+        {this.state.products.map((product, indx) => {
+          return (
+            <div
+              key={indx}
+              onClick={() => {
+                this.setState({
+                  products: [],
+                  selectedProduct: product
+                });
+              }}
+              className="d-flex border-bottom"
+            >
+              <img
+                style={{ width: 80, height: 80 }}
+                src={product.images[0]}
+                alt=""
+              />
+              <div className="flex-column">
+                <div>{product.name}</div>
+                <div>{product.price}تومان</div>
+                <div>{product.description}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+  productSearch(event) {
+    this.setState({ searchKey: event.target.value }, () => {
+      fetch(`${serverAddress}/product/search`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          phrase: this.state.searchKey
+        })
+      })
+        .then(response => response.json())
+        .then(responseJson => {
+          this.setState({ products: responseJson });
+        })
+        .catch(error => {
+          console.log(error, "it is the error");
+        });
+    });
+  }
+  renderSearchBox() {
+    return (
+      <div style={{ position: "relative" }}>
+        <input
+          placeholder="جستجو بر روی کالا ها"
+          type="text"
+          className="form-control"
+          value={this.state.searchKey}
+          onChange={event => this.productSearch(event)}
+        />
+        {this.state.products && this.state.products.length
+          ? this.showProducts()
+          : null}
+      </div>
     );
   }
   renderUploadParts() {
@@ -186,7 +271,7 @@ class SlidesManagement extends Component {
               <span className="d-flex align-items-center px-1">
                 در صفحه جدید باز شود
               </span>
-              <input
+              {/* <input
                 onClick={() =>
                   this.setState({
                     category: "men"
@@ -205,10 +290,13 @@ class SlidesManagement extends Component {
                 type="radio"
                 name="category0"
               />
-              <span className="d-flex align-items-center px-1">بانوان</span>
+              <span className="d-flex align-items-center px-1">بانوان</span> */}
             </div>
           </div>
           <div className="">
+            {/* <div className="p-2 d-flex justify-content-center">
+              {this.renderSearchBox(1)}
+            </div> */}
             <label
               style={{ cursor: "pointer" }}
               className="d-flex justify-content-center"
@@ -260,7 +348,7 @@ class SlidesManagement extends Component {
               <span className="d-flex align-items-center px-1">
                 در صفحه جدید باز شود
               </span>
-              <input
+              {/* <input
                 onClick={() =>
                   this.setState({
                     category: "men"
@@ -279,12 +367,15 @@ class SlidesManagement extends Component {
                 type="radio"
                 name="category1"
               />
-              <span className="d-flex align-items-center px-1">بانوان</span>
+              <span className="d-flex align-items-center px-1">بانوان</span> */}
             </div>
           </div>
         </div>
         <div className="d-flex justify-content-between ">
           <div className="">
+            {/* <div className="p-2 d-flex justify-content-center">
+              {this.renderSearchBox(2)}
+            </div> */}
             <label
               style={{ cursor: "pointer" }}
               className="d-flex justify-content-center"
@@ -336,7 +427,7 @@ class SlidesManagement extends Component {
               <span className="d-flex align-items-center px-1">
                 در صفحه جدید باز شود
               </span>
-              <input
+              {/* <input
                 onClick={() =>
                   this.setState({
                     category: "men"
@@ -355,10 +446,13 @@ class SlidesManagement extends Component {
                 type="radio"
                 name="category"
               />
-              <span className="d-flex align-items-center px-1">بانوان</span>
+              <span className="d-flex align-items-center px-1">بانوان</span> */}
             </div>
           </div>
           <div className="">
+            {/* <div className="p-2 d-flex justify-content-center">
+              {this.renderSearchBox(3)}
+            </div> */}
             <label
               style={{ cursor: "pointer" }}
               className="d-flex justify-content-center"
@@ -410,7 +504,7 @@ class SlidesManagement extends Component {
               <span className="d-flex align-items-center px-1">
                 در صفحه جدید باز شود
               </span>
-              <input
+              {/* <input
                 onClick={() =>
                   this.setState({
                     category: "men"
@@ -429,12 +523,15 @@ class SlidesManagement extends Component {
                 type="radio"
                 name="category"
               />
-              <span className="d-flex align-items-center px-1">بانوان</span>
+              <span className="d-flex align-items-center px-1">بانوان</span> */}
             </div>
           </div>
         </div>
         <div className="d-flex justify-content-center ">
           <div className="">
+            {/* <div className="p-2 d-flex justify-content-center">
+              {this.renderSearchBox(4)}
+            </div> */}
             <label
               style={{ cursor: "pointer" }}
               className="d-flex justify-content-center"
@@ -486,7 +583,7 @@ class SlidesManagement extends Component {
               <span className="d-flex align-items-center px-1">
                 در صفحه جدید باز شود
               </span>
-              <input
+              {/* <input
                 onClick={() =>
                   this.setState({
                     category: "men"
@@ -505,7 +602,7 @@ class SlidesManagement extends Component {
                 type="radio"
                 name="category"
               />
-              <span className="d-flex align-items-center px-1">بانوان</span>
+              <span className="d-flex align-items-center px-1">بانوان</span> */}
             </div>
           </div>
         </div>
@@ -513,8 +610,12 @@ class SlidesManagement extends Component {
     );
   }
   insertSlides(index) {
+    console.log("selected:", this.state.selectedProduct);
     let x = {
-      location: this.state.category,
+      location:
+        this.state.selectedProduct.categoryName +
+        "/" +
+        this.state.selectedProduct._id,
       image: this.state.images[index],
       show: this.state.show,
       target: this.state.target ? "_blank" : "_self"
@@ -527,7 +628,10 @@ class SlidesManagement extends Component {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        location: this.state.category,
+        location:
+          this.state.selectedProduct.categoryName +
+          "/" +
+          this.state.selectedProduct._id,
         image: this.state.images[index],
         show: this.state.show,
         target: this.state.target ? "_blank" : "_self"
@@ -535,6 +639,7 @@ class SlidesManagement extends Component {
     })
       .then(response => response.json())
       .then(responseJson => {
+        this.setState({ selectedProduct: {}, target: false, show: false });
         console.log("it is the response", responseJson);
       })
       .catch(error => {
@@ -544,6 +649,60 @@ class SlidesManagement extends Component {
   render() {
     return (
       <div>
+        <div className="p-2 d-flex justify-content-center">
+          <div>
+            <button
+              onClick={() => {
+                let images = this.state.images;
+                images[
+                  this.state.slideNumber - 1
+                ] = this.state.selectedProduct.images[0];
+                this.setState({ images });
+              }}
+              className="btn btn-primary"
+            >
+              تنظیم کردن
+            </button>
+          </div>
+          <div className="px-2 w-25 input-group">
+            <select className="form-control">
+              <option
+                onClick={() => this.setState({ slideNumber: 1 })}
+                value={this.state.slideNumber}
+              >
+                1
+              </option>
+              <option
+                onClick={() => this.setState({ slideNumber: 2 })}
+                value={this.state.slideNumber}
+              >
+                2
+              </option>
+              <option
+                onClick={() => this.setState({ slideNumber: 3 })}
+                value={this.state.slideNumber}
+              >
+                3
+              </option>
+              <option
+                onClick={() => this.setState({ slideNumber: 4 })}
+                value={this.state.slideNumber}
+              >
+                4
+              </option>
+              <option
+                onClick={() => this.setState({ slideNumber: 5 })}
+                value={this.state.slideNumber}
+              >
+                5
+              </option>
+            </select>
+            <label className="d-flex align-items-center px-2" htmlFor="">
+              برای اسلاید شماره
+            </label>
+          </div>
+          {this.renderSearchBox()}
+        </div>
         {this.renderUploadParts()}
         {this.renderCarouselsTable()}
       </div>
