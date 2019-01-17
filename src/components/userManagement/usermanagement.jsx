@@ -22,10 +22,14 @@ class UserManagement extends Component {
   }
   searchUsers() {
     fetch(`${serverAddress}/user/search`, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
       method: "POST",
-      body: {
+      body: JSON.stringify({
         phrase: this.state.searchKey
-      }
+      })
     })
       .then(response => response.json())
       .then(responseJson => {
@@ -36,14 +40,15 @@ class UserManagement extends Component {
   }
   renderSearchBox() {
     return (
-      <div
-        onClick={() => this.searchUsers()}
-        className="d-flex justify-content-end p-5 form-group"
-      >
+      <div className="d-flex justify-content-end p-5 form-group">
         <input
           style={{ direction: "rtl" }}
           type="text"
-          onChange={event => this.setState({ searchKey: event.target.value })}
+          onChange={event => {
+            this.setState({ searchKey: event.target.value }, () => {
+              return this.searchUsers();
+            });
+          }}
           value={this.state.searchKey}
           className="form-control py-4 w-25"
           placeholder="جستجو در میان کاربران"

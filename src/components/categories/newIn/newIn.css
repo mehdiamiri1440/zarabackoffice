@@ -1,0 +1,10 @@
+.upload {
+  width: 25rem;
+  color: green;
+  height: 25rem;
+  background-image: url("../../../content/images/avatar.png");
+  background-size: cover;
+}
+#toHide {
+  visibility: hidden;
+}

@@ -134,9 +134,9 @@ class ProductManagement extends Component {
             <div className="modal-footer">
               <button
                 onClick={() =>
-                  this.updateSizes(
+                  this.updateColors(
                     this.state.products[index]._id,
-                    this.state.products[index].sizes
+                    this.state.products[index].color
                   )
                 }
                 type="button"
@@ -152,9 +152,14 @@ class ProductManagement extends Component {
     );
   }
   updateColors(id, color) {
-    fetch(`${serverAddress}/product/update`, {
-      method: "POST",
-      body: { _id: id, color: color }
+    console.log(id, color);
+    fetch(`${serverAddress}/product`, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      method: "PUT",
+      body: JSON.stringify({ _id: id, color: color })
     })
       .then(response => response.json())
       .then(responseJson => {
@@ -168,9 +173,13 @@ class ProductManagement extends Component {
       });
   }
   updateSizes(id, sizes) {
-    fetch(`${serverAddress}/product/update`, {
-      method: "POST",
-      body: { _id: id, sizes: sizes }
+    fetch(`${serverAddress}/product`, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      method: "PUT",
+      body: JSON.stringify({ _id: id, sizes: sizes })
     })
       .then(response => response.json())
       .then(responseJson => {
@@ -226,9 +235,9 @@ class ProductManagement extends Component {
             <div className="modal-footer">
               <button
                 onClick={() =>
-                  this.updateColors(
+                  this.updateSizes(
                     this.state.products[index]._id,
-                    this.state.products[index].color
+                    this.state.products[index].sizes
                   )
                 }
                 type="button"
@@ -267,7 +276,12 @@ class ProductManagement extends Component {
             onClick={() => {
               let products = this.state.products;
               products[index].isAvailable = !products[index].isAvailable;
-              this.setState({ products });
+              this.setState({ products }, () => {
+                return this.changeAvialbleStatus(
+                  this.state.products[index]._id,
+                  this.state.products[index].isAvailable
+                );
+              });
             }}
             className="dropdown-item"
             href="#"
@@ -302,6 +316,26 @@ class ProductManagement extends Component {
         console.log(error, "it is the error");
       });
     this.getAllProducts();
+  }
+  changeAvialbleStatus(id, isAvailable) {
+    fetch(`${serverAddress}/product`, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      method: "PUT",
+      body: JSON.stringify({ _id: id, isAvailable: isAvailable })
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        console.log(
+          "it is the respinmse josn and it is the true:",
+          responseJson
+        );
+      })
+      .catch(error => {
+        console.log("it is error in changing colors");
+      });
   }
   renderTableOfMenCloths() {
     return (

@@ -75,6 +75,7 @@ class SlidesManagement extends Component {
         console.log("it is the countires", responseJson);
         // responseJson.map(roleID => rolesID.push(roleID.Id));
         this.setState({ carousels: responseJson });
+        console.log("fetch", responseJson);
       })
       .catch(error => {
         console.log("it was false", error);
@@ -84,6 +85,8 @@ class SlidesManagement extends Component {
     this.getCarousels();
   }
   deleteCarousel(id) {
+    console.log("before", id);
+
     fetch(`${serverAddress}/carousel`, {
       method: "DELETE",
       headers: {
@@ -91,12 +94,12 @@ class SlidesManagement extends Component {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        _id: id
+        id: id
       })
     })
       .then(response => response.json())
       .then(responseJson => {
-        console.log("deleted");
+        console.log("deleted", responseJson);
       })
       .catch(error => {
         console.log(error, "it is the error");
