@@ -16,7 +16,7 @@ class ProductManagement extends Component {
       hashTags: [],
       price: "",
       name: "",
-      hashTagName: "",
+      hashTagName: null,
       sizes: [],
       description: "",
       showInNews: false
@@ -50,9 +50,9 @@ class ProductManagement extends Component {
       },
       body: JSON.stringify({
         registerDate: Date.now(),
-        color: this.state.colors,
+        color: this.state.colors.filter(color => color != ""),
         description: this.state.description,
-        hashTag: this.state.hashTags,
+        hashTag: this.state.hashTags.filter(hashtag => hashtag !== ""),
         isAvailable: this.state.isAvailable,
         sizes: this.state.sizes,
         images: this.state.images.filter(item => item !== undefined),
@@ -447,7 +447,11 @@ class ProductManagement extends Component {
           >
             <img
               className="rounded "
-              style={{ width: 550, height: 550, border: "1px solid green" }}
+              style={{
+                width: "29rem",
+                height: "30rem",
+                border: "1px solid green"
+              }}
               src={
                 this.state.images && this.state.images[0]
                   ? this.state.images[0]
@@ -467,7 +471,11 @@ class ProductManagement extends Component {
           >
             <img
               className="rounded   "
-              style={{ width: 550, height: 550, border: "1px solid green" }}
+              style={{
+                width: "29rem",
+                height: "30rem",
+                border: "1px solid green"
+              }}
               src={
                 this.state.images && this.state.images[1]
                   ? this.state.images[1]
@@ -489,7 +497,11 @@ class ProductManagement extends Component {
           >
             <img
               className="rounded   "
-              style={{ width: 550, height: 550, border: "1px solid green" }}
+              style={{
+                width: "29rem",
+                height: "30rem",
+                border: "1px solid green"
+              }}
               src={
                 this.state.images && this.state.images[2]
                   ? this.state.images[2]
@@ -509,7 +521,11 @@ class ProductManagement extends Component {
           >
             <img
               className="rounded   "
-              style={{ width: 550, height: 550, border: "1px solid green" }}
+              style={{
+                width: "29rem",
+                height: "30rem",
+                border: "1px solid green"
+              }}
               src={
                 this.state.images && this.state.images[3]
                   ? this.state.images[3]
@@ -531,7 +547,11 @@ class ProductManagement extends Component {
           >
             <img
               className="rounded   "
-              style={{ width: 550, height: 550, border: "1px solid green" }}
+              style={{
+                width: "29rem",
+                height: "30rem",
+                border: "1px solid green"
+              }}
               src={
                 this.state.images && this.state.images[4]
                   ? this.state.images[4]
@@ -551,7 +571,11 @@ class ProductManagement extends Component {
           >
             <img
               className="rounded   "
-              style={{ width: 550, height: 550, border: "1px solid green" }}
+              style={{
+                width: "29rem",
+                height: "30rem",
+                border: "1px solid green"
+              }}
               src={
                 this.state.images && this.state.images[5]
                   ? this.state.images[5]
@@ -619,6 +643,90 @@ class ProductManagement extends Component {
             : دسته بندی
           </div>
         </label>
+      </div>
+    );
+  }
+  renderhashtags() {
+    return (
+      <div>
+        {this.state.hashTags.map((hashtag, index) => (
+          <span key={index}>
+            <span>{hashtag}</span>
+            {hashtag ? (
+              <span>
+                <i
+                  onClick={() => {
+                    let hashTags = this.state.hashTags;
+                    hashTags.splice(index, 1);
+                    this.setState({ hashTags }, () => {
+                      console.log("it ishyt egb ajdhm", this.state.hashTags);
+                    });
+                  }}
+                  className="fa px-2 fa-times-circle"
+                />
+              </span>
+            ) : null}
+          </span>
+        ))}
+      </div>
+    );
+  }
+  searchProducts() {
+    fetch(`${serverAddress}/product/search`, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      method: "POST",
+      body: JSON.stringify({
+        phrase: this.state.searchKey
+      })
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        console.log("it is the response", responseJson);
+        this.setState({ products: responseJson });
+      })
+      .catch(error => console.error("Error:", error));
+  }
+  renderSearchBox() {
+    return (
+      <div className="d-flex justify-content-end p-5  col form-group">
+        <input
+          style={{ direction: "rtl" }}
+          type="text"
+          onChange={event => {
+            this.setState({ searchKey: event.target.value }, () => {
+              return this.searchProducts();
+            });
+          }}
+          value={this.state.searchKey}
+          className="form-control py-4 w-25"
+          placeholder="جستجو در میان محصولات"
+        />
+      </div>
+    );
+  }
+  renderColors() {
+    return (
+      <div>
+        {this.state.colors.map((color, index) => (
+          <span key={index}>
+            {color}
+            {color ? (
+              <span>
+                <i
+                  onClick={() => {
+                    let colors = this.state.colors;
+                    colors.splice(index, 1);
+                    this.setState({ colors });
+                  }}
+                  className="fa fa-times-circle"
+                />
+              </span>
+            ) : null}
+          </span>
+        ))}
       </div>
     );
   }
@@ -732,7 +840,7 @@ class ProductManagement extends Component {
             <span className="text-center  align-middle px-1">: هشتگ </span>
             <div>
               {this.state.hashTags && this.state.hashTags.length
-                ? this.state.hashTags + " , "
+                ? this.renderhashtags()
                 : null}
             </div>
           </label>
@@ -760,7 +868,7 @@ class ProductManagement extends Component {
             <span className="text-center  align-middle px-1">: رنگ </span>
             <div>
               {this.state.colors && this.state.colors.length
-                ? this.state.colors + " , "
+                ? this.renderColors()
                 : null}
             </div>
           </label>
@@ -787,6 +895,9 @@ class ProductManagement extends Component {
         </div>
         <div className="d-flex justify-content-end p-4">
           <h3> کالا های موجود </h3>
+        </div>
+        <div className="w-100 justify-content-center d-flex p-3">
+          {this.renderSearchBox()}
         </div>
         <div className="w-100 justify-content-center d-flex p-3">
           {this.renderTableOfMenCloths()}
