@@ -649,7 +649,7 @@ class ProductManagement extends Component {
   renderhashtags() {
     return (
       <div>
-        {this.state.hashTags.map((hashtag, index) => (
+        {this.state.hashTags.map((hashtag, index, hashtags) => (
           <span key={index}>
             <span>{hashtag}</span>
             {hashtag ? (
@@ -657,10 +657,8 @@ class ProductManagement extends Component {
                 <i
                   onClick={() => {
                     let hashTags = this.state.hashTags;
-                    hashTags.splice(index, 1);
-                    this.setState({ hashTags }, () => {
-                      console.log("it ishyt egb ajdhm", this.state.hashTags);
-                    });
+                    hashTags.splice(hashtags.indexOf(hashtag), 1);
+                    this.setState({ hashTags }, () => {});
                   }}
                   className="fa px-2 fa-times-circle"
                 />
@@ -710,7 +708,7 @@ class ProductManagement extends Component {
   renderColors() {
     return (
       <div>
-        {this.state.colors.map((color, index) => (
+        {this.state.colors.map((color, index, colors) => (
           <span key={index}>
             {color}
             {color ? (
@@ -718,7 +716,7 @@ class ProductManagement extends Component {
                 <i
                   onClick={() => {
                     let colors = this.state.colors;
-                    colors.splice(index, 1);
+                    colors.splice(colors.indexOf(color), 1);
                     this.setState({ colors });
                   }}
                   className="fa fa-times-circle"
