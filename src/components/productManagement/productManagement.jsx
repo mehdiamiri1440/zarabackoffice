@@ -1,5 +1,8 @@
+// import { css } from "@emotion/core";
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
+// import { ScaleLoader } from "react-spinners";
+
 import { serverAddress } from "./../../utility/consts";
 import { numberWithCommas } from "./../../utility/index";
 class ProductManagement extends Component {
@@ -14,6 +17,7 @@ class ProductManagement extends Component {
       images: new Array(6),
       isAvailable: false,
       hashTags: [],
+      loading: true,
       price: "",
       name: "",
       hashTagName: null,
@@ -23,6 +27,7 @@ class ProductManagement extends Component {
     };
   }
   componentDidMount() {
+    console.log("it is the images", this.state.images);
     this.getAllProducts();
   }
   getAllProducts() {
@@ -36,7 +41,7 @@ class ProductManagement extends Component {
       .then(response => response.json())
       .then(responseJson => {
         this.setState({ products: responseJson });
-        console.log("it is the response", responseJson);
+        console.log("it is all products", responseJson);
       })
       .catch(error => {});
   }
@@ -67,12 +72,12 @@ class ProductManagement extends Component {
         this.setState({
           description: "",
           hashTags: [],
+          colors: [],
           isAvailable: false,
-          sizes: [],
           images: [],
           showInNews: false,
           price: "",
-          category: "",
+          category: null,
           name: ""
         });
         return this.getAllProducts();
@@ -412,6 +417,11 @@ class ProductManagement extends Component {
     return realTime.toISOString();
   }
   upload(index, file) {
+    console.log(
+      "it is the uploaded picture from user :",
+      this.state.images,
+      file
+    );
     var formData = new FormData();
     let images = this.state.images;
     formData.append("files", file);
@@ -422,6 +432,7 @@ class ProductManagement extends Component {
     })
       .then(response => response.json())
       .then(responseJson => {
+        this.setState({ loading: false });
         console.log(
           "it is the respinmse josn and it is the true:",
           responseJson
@@ -600,6 +611,7 @@ class ProductManagement extends Component {
           <input
             onChange={event => this.setState({ name: event.target.value })}
             type="text"
+            value={this.state.name}
             className="align-middle form-control"
           />
           <div className="w-50 d-flex align-items-center px-2">: نام کالا</div>
@@ -742,6 +754,21 @@ class ProductManagement extends Component {
         <div className=" p-3 w-100 d-flex justify-content-center">
           <h3>مدیریت محصولات</h3>
         </div>
+        <div
+          className="position-absolute"
+          style={{
+            top: "50%",
+            left: "50%",
+            zIndex: 9999
+          }}
+        >
+          {/* <ScaleLoader
+            sizeUnit={"px"}
+            size={400}
+            color={"red"}
+            loading={this.state.loading}
+          /> */}
+        </div>
         {this.renderUploadPictures()}
         {this.productInfos()}
         <div className="px-4  d-flex justify-content-end">
@@ -749,7 +776,7 @@ class ProductManagement extends Component {
             <input
               className="align-middle px-1"
               type="checkbox"
-              value={this.state.showInNews}
+              value={this.state.sizes[0]}
               onChange={() => this.setSizes("s")}
             />
             <span className="text-center align-middle px-1">s</span>
@@ -758,7 +785,7 @@ class ProductManagement extends Component {
             <input
               className="align-middle px-1"
               type="checkbox"
-              value={this.state.showInNews}
+              value={this.state.sizes[1]}
               onChange={() => this.setSizes("m")}
             />
             <span className="text-center align-middle px-1">m</span>
@@ -767,7 +794,7 @@ class ProductManagement extends Component {
             <input
               className="align-middle px-1"
               type="checkbox"
-              value={this.state.showInNews}
+              value={this.state.sizes[2]}
               onChange={() => this.setSizes("xxl")}
             />
             <span className="text-center align-middle px-1">xxl</span>
@@ -776,7 +803,7 @@ class ProductManagement extends Component {
             <input
               className="align-middle px-1"
               type="checkbox"
-              value={this.state.showInNews}
+              value={this.state.showInNews[3]}
               onChange={() => this.setSizes("xl")}
             />
             <span className="text-center align-middle px-1">xl</span>
@@ -785,7 +812,7 @@ class ProductManagement extends Component {
             <input
               className="align-middle px-1"
               type="checkbox"
-              value={this.state.showInNews}
+              value={this.state.sizes[4]}
               onChange={() => this.setSizes("l")}
             />
             <span className="text-center align-middle px-1">l</span>
@@ -797,6 +824,7 @@ class ProductManagement extends Component {
               در جدید ها نمایش داده شود
             </span>
             <input
+              checked={this.state.showInNews}
               className="align-middle px-1"
               type="checkbox"
               value={this.state.showInNews}
@@ -808,6 +836,7 @@ class ProductManagement extends Component {
           <label className="px-3">
             <span className="text-center  align-middle px-1">موجود </span>
             <input
+              checked={this.state.isAvailable}
               className="align-middle px-1"
               type="checkbox"
               value={this.state.isAvailable}
